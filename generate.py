@@ -30,9 +30,9 @@ from pyomo.environ import *
 from pyomo.opt import SolverFactory
 
 import networkx as nx
-from matplotlib.cm import autumn_r, hot_r
+# from matplotlib.cm import autumn_r, hot_r
 import matplotlib.pyplot as plt
-
+from functools import cmp_to_key
 
 """Generates nb_nodes * (nb_nodes - 1) flow rates according to the Gravity model.
 Args:
@@ -237,7 +237,7 @@ Args:
   flow_rates: List of flow rates. Flow rates i will be routed on OD pair i.
 """
 def route_flows_multipaths(links, all_paths, od_pairs, flow_rates):
-    for i in xrange(len(od_pairs)):
+    for i in range(len(od_pairs)):
         (src, dst) = od_pairs[i]
         paths = all_paths[src, dst]
         for (path, weight) in paths:
@@ -354,7 +354,10 @@ def assign_flow_rates_heuristic(data, tm, mipgap):
                 return -1
         return compare
     flow_rates.sort(reverse=True)
-    od_pairs = sorted(od_pairs, cmp=make_comparator(od_pair_infos), reverse=True)
+    # wayne:20200603 modified for python3.6.7
+    # od_pairs = sorted(od_pairs, cmp=make_comparator(od_pair_infos), reverse=True)
+    od_pairs = sorted(od_pairs, key = cmp_to_key(make_comparator(od_pair_infos)), reverse=True)
+    # wayne:20200603 modified for python3.6.7
 
     # Route flows between OD pairs:
     route_flows_multipaths(links, all_paths, od_pairs, flow_rates)
